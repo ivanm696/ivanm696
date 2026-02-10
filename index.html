@@ -1,16 +1,127 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title data-default>Vite + React + TS</title>
-    <meta property="og:image" content="https://bolt.new/static/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>HTML Deployer — Каркас</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --accent: #38bdf8;
+      --card: #1e293b;
+    }
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Зона загрузки */
+    .drop-zone {
+      flex: 1;
+      border: 4px dashed rgba(56, 189, 248, 0.3);
+      margin: 40px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .drop-zone.hover {
+      background: rgba(56, 189, 248, 0.1);
+      border-color: var(--accent);
+    }
+    .btn-select {
+      background: var(--accent);
+      color: #000;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    /* Слой для отображения сайта */
+    #viewer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: none;
+      display: none;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+  </style>
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<body>
+
+  <div class="drop-zone" id="dropZone">
+    <h2>🚀 Загрузчик HTML каркаса</h2>
+    <p>Перетащите сюда свой .html файл или нажмите кнопку ниже</p>
+    <label class="btn-select">
+      Выбрать файл
+      <input type="file" id="fileInput" accept=".html" style="display:none">
+    </label>
+  </div>
+
+  <iframe id="viewer"></iframe>
+  <div id="backBtn" class="back-btn">⬅ Вернуться в меню</div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const viewer = document.getElementById('viewer');
+    const backBtn = document.getElementById('backBtn');
+
+    // Обработка выбора файла
+    function handleFile(file) {
+      if (file && file.type === "text/html") {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          viewer.srcdoc = e.target.result;
+          viewer.style.display = 'block';
+          backBtn.style.display = 'block';
+        };
+        reader.readAsText(file);
+      } else {
+        alert("Пожалуйста, выберите файл формата .html");
+      }
+    }
+
+    // Слушатели событий
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('hover'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('hover');
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('hover');
+      handleFile(e.dataTransfer.files[0]);
+    };
+
+    backBtn.onclick = () => {
+      viewer.style.display = 'none';
+      backBtn.style.display = 'none';
+      viewer.srcdoc = '';
+    };
+  </script>
+</body>
 </html>
